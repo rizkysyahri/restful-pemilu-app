@@ -7,8 +7,10 @@ export default new (class UserService {
 
   async create(reqBody: any): Promise<any> {
     try {
-      console.log("Received request body:", reqBody);
+      // console.log("Received request body:", reqBody);
       const repository = AppDataSource.getRepository(Users);
+
+      const voteId = reqBody.votes
 
       const users = repository.create({
         fullname: reqBody.fullname,
@@ -16,7 +18,8 @@ export default new (class UserService {
         gender: reqBody.gender,
         username: reqBody.username,
         password: reqBody.password,
-        role: reqBody.role,
+        votes: voteId
+
       });
 
       await AppDataSource.getRepository(Users)
@@ -34,15 +37,29 @@ export default new (class UserService {
     }
   }
 
-  async find(): Promise<any> {
+  async getAllUsers(): Promise<Users[]> {
     try {
       const users = await AppDataSource.getRepository(Users)
         .createQueryBuilder("users")
+        .leftJoin("users.votes", "votes")
+        .loadAllRelationIds()
         .getMany();
 
       return users;
     } catch (error) {
       throw error;
+    }
+  }
+
+  async getUserById(id: number): Promise<Users> {
+    try {
+      const userById = await this.repository.findOne({
+        where: { id },
+      });
+
+      return userById
+    } catch (error) {
+      throw error
     }
   }
 
@@ -127,9 +144,9 @@ export default new (class UserService {
         .execute();
 
       // console.log("User remove Successfuly", userToDelete);
-      return userToDelete
+      return userToDelete;
     } catch (error) {
-      return error
+      return error;
       // console.log(error);
     }
   }

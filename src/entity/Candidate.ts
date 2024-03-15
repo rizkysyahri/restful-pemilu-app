@@ -2,9 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
+import { Vote } from "./Vote";
 
 @Entity()
 export class Candidate {
@@ -17,15 +22,16 @@ export class Candidate {
   @Column()
   serial_number: number;
 
-  @Column()
+  @Column({ type: "text" })
   vision_mission: string;
 
   @CreateDateColumn()
   created_at: Date;
 
-  @CreateDateColumn()
+  @UpdateDateColumn()
   updated_at: Date;
 
-//   @OneToMany(() => Vote, (votes) => votes.candidates) 
-//   votes: Vote[]
+  @ManyToOne(() => Vote, (votes) => votes.candidates)
+  @JoinColumn({ name: "voteId" })
+  votes: Vote;
 }

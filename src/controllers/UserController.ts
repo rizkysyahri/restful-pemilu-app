@@ -1,12 +1,17 @@
 import { Request, Response } from "express";
 import UserService from "../services/UserService";
+import { LoginScema, UserValidator } from "../validators/User";
 
 export default new (class UserController {
   async create(req: Request, res: Response): Promise<Response> {
     try {
       const data = req.body;
 
-      const users = await UserService.create(data);
+      const { error, value } = UserValidator.validate(data);
+      if (error)
+        return res.status(400).json({ message: error.details[0].message });
+
+      const users = await UserService.create(value);
 
       return res.status(200).json({ data: users });
     } catch (error) {
@@ -14,25 +19,37 @@ export default new (class UserController {
     }
   }
 
-  async find(req: Request, res: Response): Promise<Response> {
+  async getAllUsers(req: Request, res: Response): Promise<Response> {
     try {
-      const users = await UserService.find();
+      const users = await UserService.getAllUsers();
 
       return res.status(200).json({ data: users });
     } catch (error) {
       return res.status(500).json({ message: error });
+    }
+  }
+
+  async getUserById(req: Request, res: Response): Promise<Response> {
+    try {
+      const id = parseInt(req.params.id);
+      // console.log(id)
+
+      const userById = await UserService.getUserById(id);
+
+      return res.status(200).json({ data: userById });
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
     }
   }
 
   async login(req: Request, res: Response): Promise<Response> {
     try {
-      const { username, password } = req.body;
+      const { error, value } = LoginScema.validate(req.body);
 
-      if (!username || !password) {
-        return res
-          .status(400)
-          .json({ message: "Invalid username or password" });
-      }
+      if (error)
+        return res.status(400).json({ message: error.details[0].message });
+
+      const { username, password } = value;
 
       const userLogin = await UserService.login(username, password);
 
