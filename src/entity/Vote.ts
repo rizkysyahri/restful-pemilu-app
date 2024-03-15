@@ -1,35 +1,33 @@
 import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    ManyToOne,
-    OneToMany,
-    PrimaryGeneratedColumn,
-  } from "typeorm";
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 import { Candidate } from "./Candidate";
 import { Users } from "./User";
-  
-  @Entity()
-  export class Vote {
-    @PrimaryGeneratedColumn()
-    id: number;
-  
-    @Column()
-    candidate_id: number;
-  
-    @Column()
-    user_id: number;
-  
-    @CreateDateColumn()
-    created_at: Date;
-  
-    @CreateDateColumn()
-    updated_at: Date;
-  
-    // @ManyToOne(() => Candidate, (candidates) => candidates.votes) 
-    // candidates: Candidate[]
 
-    // @ManyToOne(() => Users, (users) => users.votes)
-    // users: Users
-  }
-  
+@Entity()
+export class Vote {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+
+  @OneToMany(() => Candidate, (candidates) => candidates.votes)
+  @JoinColumn({ name: "candidateId" })
+  candidates: Candidate;
+
+  @OneToMany(() => Users, (users) => users.votes)
+  @JoinColumn({ name: "userId" })
+  users: Users;
+}

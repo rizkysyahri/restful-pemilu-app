@@ -4,13 +4,16 @@ import {
   Column,
   CreateDateColumn,
   OneToMany,
+  ManyToOne,
+  OneToOne,
+  JoinColumn,
 } from "typeorm";
 import { Articles } from "./Articles";
 import { Vote } from "./Vote";
 
 enum UserRoles {
-    USER = "user",
-    ADMIN = "admin"
+  USER = "user",
+  ADMIN = "admin",
 }
 
 enum UserGender {
@@ -38,15 +41,18 @@ export class Users {
   @Column()
   password: string;
 
-  @Column({type: "enum", enum: UserRoles, default: UserRoles.USER})
-  role: UserRoles
+  @Column({ type: "enum", enum: UserRoles, default: UserRoles.USER })
+  role: UserRoles;
 
   @CreateDateColumn()
   createdDate: Date;
 
-  @OneToMany(() => Articles, (articles) => articles.users)
-  articles: Articles[]
+  @OneToMany(() => Articles, (articles) => articles.users, {
+   onDelete: "CASCADE", onUpdate: "CASCADE"
+  })
+  articles: Articles[];
 
-  // @OneToMany(() => Vote, (votes) => votes.users)
-  // votes: Vote[]
+  @ManyToOne(() => Vote, (votes) => votes.users)
+  @JoinColumn({ name: "voteId" })
+  votes: Vote;
 }
